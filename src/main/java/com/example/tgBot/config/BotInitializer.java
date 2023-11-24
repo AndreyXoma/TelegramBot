@@ -1,6 +1,5 @@
 package com.example.tgBot.config;
 
-
 import com.example.tgBot.service.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Component
 @Slf4j
 public class BotInitializer {
-
     @Autowired
     TelegramBot bot;
 
@@ -24,7 +22,7 @@ public class BotInitializer {
         try {
             telegramBotsApi.registerBot(bot);
         } catch (TelegramApiException e) {
-            log.error("Ощибка загрузки бота!");
+            log.error("Ошибка загрузки бота!");
         }
     }
 }

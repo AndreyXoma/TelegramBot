@@ -1,6 +1,5 @@
 package com.example.tgBot.service;
 
-
 import com.example.tgBot.config.BotConfig;
 import com.example.tgBot.entity.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -8,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParseException;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -18,12 +18,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Slf4j
-public class TelegramBot  extends TelegramLongPollingBot {
+@EnableScheduling
+public class TelegramBot extends TelegramLongPollingBot {
 
     @Autowired
     private UserRepository userRepository;
@@ -33,50 +37,56 @@ public class TelegramBot  extends TelegramLongPollingBot {
     private DailyDomainsRepository dailyDomainsRepository;
     private BotConfig botConfig;
     private Users users = new Users();
-
     private final SendMessage sendMessage = new SendMessage();
-    private List<DailyDomains> list = new ArrayList<>();
+    private int countDomains = 0;
 
     public TelegramBot(BotConfig botConfig) {
         this.botConfig = botConfig;
     }
 
-    @Scheduled(cron = "*/10  * * * *" )
+    @Scheduled(cron = "0 0 12 * * ?")
     public void json() {
         RestTemplate restTemplate = new RestTemplate();
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
+            dailyDomainsRepository.deleteAll();
             String json = restTemplate.getForObject("https://backorder.ru/json/?order=desc&expired=1&by=hotness&page=1&items=50",
                     String.class);
-
-            list = objectMapper.readValue(json, new TypeReference<>() {});
+            List<DailyDomains> list = objectMapper.readValue(json, new TypeReference<>() {
+            });
 
             Thread saveThread = new Thread(() -> {
                 dailyDomainsRepository.saveAll(list);
                 log.info("Сохранение выполнено успешно!");
             });
+            countDomains = list.size();
 
             saveThread.start();
 
         } catch (JsonParseException e) {
-          log.error("Неккоректный файл", e);
+            log.error("Неккоректный файл", e);
 
         } catch (IOException e) {
-           log.error("Ошибка чтения файла", e);
+            log.error("Ошибка чтения файла", e);
         }
+        sendingMessage();
     }
 
+    // вывод сообщения о кол-ве собранных доменов
     private void sendingMessage() {
         var users = userRepository.findAll();
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd");
 
-        String text = "Было собрано: " + list.size() + " доменов!";
-        for(Users user : users) {
-            sendMessage(user.getId(),  text);
+        String text = date.format(formatter) + " Собрано " + countDomains + " доменов!";
+        for (Users user : users) {
+            sendMessage(user.getId(), text);
         }
 
     }
 
+    // регистрация входящий и исходящих сообщений от пользователя и бота
     private void registOfIncomingAndOutgoingMess(Users users, Message message, Update update) {
         if (users != null && message != null && update != null) {
 
@@ -87,8 +97,8 @@ public class TelegramBot  extends TelegramLongPollingBot {
 
             messageRepository.save(messages);
 
-           log.info(String.format("Входящее сообщение: %s, и исходящее сообщение %s, от пользователя %s были сохранены",
-                   messages.getIncoming_mess(), messages.getOutgoing_mess(), users.getName()));
+            log.info(String.format("Входящее сообщение: %s, и исходящее сообщение %s, от пользователя %s были сохранены",
+                    messages.getIncoming_mess(), messages.getOutgoing_mess(), users.getName()));
 
         }
     }
@@ -99,43 +109,43 @@ public class TelegramBot  extends TelegramLongPollingBot {
         if (update.getMessage().hasText() && update.hasMessage()) {
             String message = update.getMessage().getText();
 
-            switch (message) {
-                case "/start":
-                    users = registerUser(update.getMessage());
-                    startCommand(chatId, update.getMessage().getChat().getFirstName());
-                    break;
-                default:
-                    updateLastMessage(update.getMessage(), users);
-
-                    sendMessage(chatId, "Данная команда неподдерживается!!!");
-                    registOfIncomingAndOutgoingMess(users, update.getMessage(), update);
-
-
+            if (message.length() > 10000) {
+                sendMessage(chatId, "Слишком длинный текст!");
+            } else {
+                switch (message) {
+                    case "/start":
+                        users = registerUser(update.getMessage());
+                        startCommand(chatId, update.getMessage().getChat().getFirstName());
+                        registOfIncomingAndOutgoingMess(users, update.getMessage(), update);
+                        break;
+                    default:
+                        sendMessage(chatId, "Данная команда неподдерживается!!!");
+                        updateLastMessage(chatId, update.getMessage(), update);
+                }
             }
-
         }
-        json();
-        sendingMessage();
     }
 
-    public void updateLastMessage(Message message, Users users) {
-        if (userRepository.findById(message.getChatId()).isPresent()) {
+    // сохранение последнего сообщения от пользователя
+    public void updateLastMessage(long chatId, Message message, Update update) {
+        Optional<Users> optionalUsers = userRepository.findById(chatId);
+        if (optionalUsers.isPresent()) {
+            Users users1 = optionalUsers.get();
+            users1.setLast_message_at(message.getText());
+            userRepository.save(users1);
 
-            users.insertLastMess(message);
-            userRepository.save(users);
+            log.info("Новое сообщение пользователя: " + users1.getName() + " сохранено: " + users1.getLast_message_at());
 
-           log.info("Новое сообщение пользователя: " + users.getName() +
-                   " сохранено: " + users.getLast_message_at());
+            registOfIncomingAndOutgoingMess(users1, message, update);
         } else {
-            sendMessage(message.getChatId(), "Для начала работы нажми на: /start ");
+            log.error("Пользователь с ID не найден.");
         }
     }
 
 
+    // регистрация нового пользователя
     private Users registerUser(Message message) {
-
         if (userRepository.findById(message.getChatId()).isEmpty()) {
-
             var chatId = message.getChatId();
             var chat = message.getChat();
 
@@ -145,33 +155,30 @@ public class TelegramBot  extends TelegramLongPollingBot {
             users.setLast_message_at(message.getText());
 
             userRepository.save(users);
-           log.info("Пользователь " + users + " сохранен!");
+            log.info("Пользователь " + users + " сохранен!");
         }
-
         return users;
     }
 
+    // вывод начального сообщени от бота
     private void startCommand(long chatId, String name) {
-        String answer = "Привет, " + name;
+        String answer = "Привет, " + name + "\n " + "Я умею только записывать твои сообщения в БД. \n " +
+                "Раз в сутки буду отправлять тебе сообщение о кол-во собраных доменов!";
 
-       log.info("пользователь: " + name);
+        log.info("пользователь: " + name);
         sendMessage(chatId, answer);
-
     }
 
+    // исходящее сообщение от бота
     private void sendMessage(long chatId, String message) {
-
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(message);
 
         try {
             execute(sendMessage);
-
         } catch (TelegramApiException e) {
             log.error("Ошибка: " + e.getMessage());
         }
-
-
     }
 
     @Override

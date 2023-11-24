@@ -4,14 +4,14 @@ create table if not exists users
 (
     id bigint PRIMARY KEY NOT NULL ,
     name varchar(60) NOT NULL,
-    last_message_at varchar(1000) not null
+    last_message_at varchar(10000) not null
     );
 
 create table if not exists message
 (
     id_message BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    incoming_mess varchar(1000) not null,
-    outgoing_mess varchar(100) not null,
+    incoming_mess varchar(10000) not null,
+    outgoing_mess varchar(10000) not null,
     id_user bigint references users(id)
     );
 

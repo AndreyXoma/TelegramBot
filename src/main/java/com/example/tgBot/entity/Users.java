@@ -1,6 +1,5 @@
 package com.example.tgBot.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,12 +14,11 @@ public class Users {
 
     @Id
     private Long id;
-
     private String name;
     private String last_message_at;
 
     public void insertLastMess(Message message) {
-        if(message != null) {
+        if (message != null) {
             this.last_message_at = message.getText();
         } else {
             log.error("Ошибка в сообщении!!");
