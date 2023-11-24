@@ -1,0 +1,32 @@
+2023-11-24 10:25:16 [main] INFO  com.example.tgBot.TgBotApplication --- Starting TgBotApplication using Java 19 with PID 7700 (D:\CODE Java\tgBot\target\classes started by ahoma in D:\CODE Java\tgBot)
+2023-11-24 10:25:16 [main] DEBUG com.example.tgBot.TgBotApplication --- Running with Spring Boot v3.1.6, Spring v6.0.14
+2023-11-24 10:25:16 [main] INFO  com.example.tgBot.TgBotApplication --- No active profile set, falling back to 1 default profile: "default"
+2023-11-24 10:25:17 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate --- Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-11-24 10:25:17 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate --- Finished Spring Data repository scanning in 81 ms. Found 3 JPA repository interfaces.
+2023-11-24 10:25:19 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer --- Tomcat initialized with port(s): 8083 (http)
+2023-11-24 10:25:19 [main] INFO  o.a.coyote.http11.Http11NioProtocol --- Initializing ProtocolHandler ["http-nio-8083"]
+2023-11-24 10:25:19 [main] INFO  o.a.catalina.core.StandardService --- Starting service [Tomcat]
+2023-11-24 10:25:19 [main] INFO  o.a.catalina.core.StandardEngine --- Starting Servlet engine: [Apache Tomcat/10.1.16]
+2023-11-24 10:25:19 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] --- Initializing Spring embedded WebApplicationContext
+2023-11-24 10:25:19 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext --- Root WebApplicationContext: initialization completed in 2407 ms
+2023-11-24 10:25:19 [main] INFO  com.zaxxer.hikari.HikariDataSource --- TGBot - Starting...
+2023-11-24 10:25:19 [main] INFO  com.zaxxer.hikari.pool.HikariPool --- TGBot - Added connection org.postgresql.jdbc.PgConnection@c3719e5
+2023-11-24 10:25:19 [main] INFO  com.zaxxer.hikari.HikariDataSource --- TGBot - Start completed.
+2023-11-24 10:25:20 [main] INFO  liquibase.database --- Set default schema name to public
+2023-11-24 10:25:20 [main] INFO  liquibase.changelog --- Reading resource: db/changelog/changesets/changeset.sql
+2023-11-24 10:25:20 [main] INFO  liquibase.changelog --- Reading from public.databasechangelog
+2023-11-24 10:25:20 [main] INFO  liquibase.executor --- Changelog query completed.
+2023-11-24 10:25:21 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo --- No LoadTimeWeaver setup: ignoring JPA class transformer
+2023-11-24 10:25:21 [main] WARN  org.hibernate.orm.deprecation --- HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2023-11-24 10:25:22 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean --- Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-11-24 10:25:23 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration --- spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-11-24 10:25:23 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter --- ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2023-11-24 10:25:24 [main] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping --- 2 mappings in 'requestMappingHandlerMapping'
+2023-11-24 10:25:24 [main] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping --- Patterns [/webjars/**, /**] in 'resourceHandlerMapping'
+2023-11-24 10:25:24 [main] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver --- ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2023-11-24 10:25:24 [main] INFO  o.a.coyote.http11.Http11NioProtocol --- Starting ProtocolHandler ["http-nio-8083"]
+2023-11-24 10:25:24 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer --- Tomcat started on port(s): 8083 (http) with context path ''
+2023-11-24 10:25:25 [main] INFO  com.example.tgBot.TgBotApplication --- Started TgBotApplication in 8.792 seconds (process running for 10.067)
+2023-11-24 10:25:43 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean --- Closing JPA EntityManagerFactory for persistence unit 'default'
+2023-11-24 10:25:43 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource --- TGBot - Shutdown initiated...
+2023-11-24 10:25:43 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource --- TGBot - Shutdown completed.
